@@ -74,7 +74,7 @@ public class ScheduleJob {
 		String serviceName = environment.getProperty("spring.application.name");
 		MongoDistributedLock.tryLock(String.format("%s_%s", "errorCompensation", serviceName), LOCK_EXPIRE_TIME, () -> {
 			LOG.error("异常事务补偿start.....................................");
-			List<GlobalTx> errorList = globalTxDao.find(GlobalTxStatusEnum.ERROR.getCode(), 0, DEFAULT_LIMIT, Direction.DESC);
+			List<GlobalTx> errorList = globalTxDao.find(GlobalTxStatusEnum.ERROR.getCode(), 0, DEFAULT_LIMIT, Direction.ASC);
 			errorList.parallelStream().forEach(globalTx -> {
 				startCompensate(serviceName, globalTx, ERROR_WAIT_TIME);
 			});
@@ -85,7 +85,7 @@ public class ScheduleJob {
 		String serviceName = environment.getProperty("spring.application.name");
 		MongoDistributedLock.tryLock(String.format("%s_%s", "processingCompensation", serviceName), LOCK_EXPIRE_TIME, () -> {
 			LOG.error("超时事务补偿start.....................................");
-			List<GlobalTx> processingList = globalTxDao.find(GlobalTxStatusEnum.PROCESSING.getCode(), PROCESSING_WAIT_TIME, DEFAULT_LIMIT, Direction.DESC);
+			List<GlobalTx> processingList = globalTxDao.find(GlobalTxStatusEnum.PROCESSING.getCode(), PROCESSING_WAIT_TIME, DEFAULT_LIMIT, Direction.ASC);
 			processingList.parallelStream().forEach(globalTx -> {
 				startCompensate(serviceName, globalTx, 0);
 			});
